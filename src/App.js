@@ -6,10 +6,40 @@ import { Card, Icon, Input, Form, TextArea, Button, Grid } from "semantic-ui-rea
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
 
+// amplify libs
+import Amplify from "aws-amplify";
+import config from "./aws-exports";
+import { withAuthenticator } from "aws-amplify-react";
+import API, { graphqlOperation } from "@aws-amplify/api";
+
+// graphql queries, mutations and subscription imports
+import { createNote } from "./graphql/mutations";
+import { listNotes } from "./graphql/queries";
+import { onCreateNote } from "./graphql/subscriptions";
+
+// configure amplify
+Amplify.configure(config);
+
 class App extends Component {
   state = {
-    note: { title: "", text: "", date: null },
+    note: { title: "", text: "", date: "" },
     notes: []
+  };
+
+  componentDidMount = async () => {
+    // get notes from backend
+    const notes = await API.graphql(graphqlOperation(listNotes));
+    this.setState({ notes: notes.data.listNotes.items });
+
+    // listen for new notes
+    API.graphql(graphqlOperation(onCreateNote)).subscribe({
+      next: eventData => {
+        const note = eventData.value.data.onCreateNote;
+        this.setState({
+          notes: [...this.state.notes, note]
+        });
+      }
+    });
   };
 
   handleChange = (name, { target }) => {
@@ -26,10 +56,11 @@ class App extends Component {
       {
         note: { ...this.state.note, id: uuid(), date: dayjs() }
       },
-      () => {
-        this.setState({
-          notes: [...this.state.notes, this.state.note]
-        });
+      async () => {
+        await API.graphql(graphqlOperation(createNote, { input: this.state.note }));
+        // this.setState({
+        //   notes: [...this.state.notes, this.state.note]
+        // });
       }
     );
   };
@@ -58,7 +89,7 @@ class App extends Component {
                 </Card.Content>
                 <Card.Content extra>
                   <Icon name="calendar" />
-                  {note.date.format("DD-MMM-YYYY, h:mm:ss a")}
+                  {dayjs(note.date).format("DD-MMM-YYYY, h:mm:ss a")}
                 </Card.Content>
               </Card>
             </Grid.Column>
@@ -69,4 +100,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withAuthenticator(App, true);

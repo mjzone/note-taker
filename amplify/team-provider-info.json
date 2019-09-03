@@ -1,0 +1,19 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "note-taker-dev-20190904001202-authRole",
+            "UnauthRoleArn": "arn:aws:iam::885121665536:role/note-taker-dev-20190904001202-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::885121665536:role/note-taker-dev-20190904001202-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "note-taker-dev-20190904001202-deployment",
+            "UnauthRoleName": "note-taker-dev-20190904001202-unauthRole",
+            "StackName": "note-taker-dev-20190904001202",
+            "StackId": "arn:aws:cloudformation:us-east-1:885121665536:stack/note-taker-dev-20190904001202/86953c50-ce7a-11e9-a468-0eaa79b17470"
+        },
+        "categories": {
+            "auth": {
+                "notetaker4e154931": {}
+            }
+        }
+    }
+}
